@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <p id="axper"></p>
+    <h2 id="gender"></h2>
+    <input id="valod" type="button" value="Add status and feedback">
+    <script>
+        const axper = document.getElementById('axper');
+        const gender = document.getElementById('gender');
+        var componentId = '';
+
+        window.parent.postMessage({
+            application: 'activity-manager',
+            message: 'init'
+        }, '*');
+
+        window.addEventListener('message', event => {
+            if(event.data.application !== 'activity-manager') return;
+
+            switch(event.data.message) {
+                case 'init-response':
+                    axper.innerText = event.data.data.content.text;
+                    gender.innerHTML = event.data.data.answers.gender
+                    componentId = event.data.data.id
+                break;
+            }
+        });
+
+        document.getElementById('valod').addEventListener('click', event => {
+            window.parent.postMessage({
+                application: 'activity-manager',
+                message: 'auto-examine',
+                data: { status: false,  feedback: 'Apres Mark Axper'}
+            }, '*');
+        });
+    </script>
+</body>
+</html>

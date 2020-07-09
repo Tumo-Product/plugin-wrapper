@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <p id="axper"></p>
+    <h2 id="gender"></h2>
+    <p id="ImageId"></p>
+    <img id="imageUrl" width="100" height="100">
+    <form id="valod">
+        <input type="radio" id="male" name="gender" value="male">
+        <label for="male">Male</label><br>
+        <input type="radio" id="female" name="gender" value="female">
+        <label for="female">Female</label><br>
+    </form>
+    <input id="file" type="file">
+    <script>
+        const axper = document.getElementById('axper');
+        const gender = document.getElementById('gender');
+        const file = document.getElementById('file');
+
+        var componentId = '';
+
+        window.parent.postMessage({
+            application: 'activity-manager',
+            message: 'init'
+        }, '*');
+
+        window.addEventListener('message', event => {
+            if(event.data.application !== 'activity-manager') return;
+
+            switch(event.data.message) {
+                case 'init-response':
+                    axper.innerText = event.data.data.content.text;
+                    gender.innerHTML = event.data.data.answers.gender;
+                    componentId = event.data.data.id;
+                break;
+
+                case 'upload-file-response':
+                    document.getElementById('ImageId').innerHTML = event.data.data.id;
+                    document.getElementById('imageUrl').src = `https://file.am.tumo.world/v1/file/${event.data.data.url}`;
+                    break;
+            }
+        });
+
+        document.getElementById('valod').addEventListener('change', event => {
+            window.parent.postMessage({
+                application: 'activity-manager',
+                message: 'set-answers',
+                data: { answers: { gender: event.target.value } }
+            }, '*');
+        });
+
+        file.addEventListener('change', event => {
+            window.parent.postMessage({
+                application: 'activity-manager',
+                message: 'upload-file',
+                data: {
+                    id: componentId,
+                    file: event.target.files[0]
+                }
+            }, '*');
+            console.log(event.target.FileList, 'FileList')
+        });
+
+    </script>
+</body>
+</html>

@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <input id="axper">
+    <script>
+        const axper = document.getElementById('axper');
+
+        window.parent.postMessage({
+            application: 'activity-manager',
+            message: 'init'
+        }, '*');
+
+
+        window.addEventListener('message', event => {
+            if(event.data.application !== 'activity-manager') return;
+
+            switch(event.data.message) {
+                case 'init-response':
+                    document.getElementById('axper').value = event.data.data.content.text || '';
+                break;
+            }
+
+            console.log(event.data);
+        });
+
+        document.getElementById('axper').addEventListener('input', event => {
+            window.parent.postMessage({
+                application: 'activity-manager',
+                message: 'set-content',
+                data: { content: {
+                    text: axper.value
+                }}
+            }, '*');
+        });
+    </script>
+</body>
+</html>
